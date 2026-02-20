@@ -1,5 +1,5 @@
 // Auto-bumped on every build — do not edit manually
-const CACHE_NAME = 'kamgbunli-1771542891';
+const CACHE_NAME = 'kamgbunli-1771589867';
 const STATIC_ASSETS = [
     '/',
     '/index.html',
