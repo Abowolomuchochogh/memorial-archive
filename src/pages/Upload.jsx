@@ -119,7 +119,7 @@ export default function Upload() {
         setError('');
 
         if (!form.fullName.trim()) {
-            setError('Please enter the full name.');
+            setError('Please enter the full name of the deceased.');
             return;
         }
 
@@ -247,11 +247,12 @@ export default function Upload() {
                         </div>
                     )}
 
-                    {/* Full Name */}
+                    {/* Full Name of Deceased */}
                     <div>
                         <label htmlFor="fullName" className="block text-xs font-semibold text-forest-900 mb-1">
-                            Full Name <span className="text-red-500">*</span>
+                            Full Name of Deceased <span className="text-red-500">*</span>
                         </label>
+                        <p className="text-[11px] text-forest-600/60 mb-1">Enter the name of the person being memorialised, not your own name.</p>
                         <input
                             id="fullName"
                             name="fullName"
