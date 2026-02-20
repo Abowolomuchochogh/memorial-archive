@@ -1,0 +1,43 @@
+{
+    "id": "/",
+    "name": "Kamgbunli Legacy — Memorial Archive",
+    "short_name": "Kamgbunli",
+    "description": "A memorial platform honouring the lives and legacies of the Kamgbunli Muslim Community.",
+    "start_url": "/",
+    "scope": "/",
+    "display": "standalone",
+    "background_color": "#F5F0E8",
+    "theme_color": "#1B3A2D",
+    "orientation": "portrait-primary",
+    "lang": "en",
+    "categories": [
+        "social",
+        "lifestyle"
+    ],
+    "icons": [
+        {
+            "src": "/icons/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/icons/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "/icons/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/icons/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ]
+}
