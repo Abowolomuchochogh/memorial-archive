@@ -114,7 +114,7 @@ export default function Archive() {
     }
 
     return (
-        <div className="min-h-screen bg-cream-100 flex flex-col">
+        <div className="flex-1 flex flex-col min-h-0">
 
             {/* Compact title strip */}
             <div className="bg-forest-900 py-4 text-center">
@@ -368,7 +368,7 @@ function TributeCard({ memorial, isLoggedIn }) {
                         src={optimizedImageUrl}
                         alt={fullName}
                         loading="lazy"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="w-full h-full object-contain bg-cream-200 group-hover:scale-105 transition-transform duration-500"
                     />
                 ) : (
                     <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-forest-300 to-forest-600">

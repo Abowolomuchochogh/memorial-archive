@@ -4,7 +4,6 @@ import {
     collection,
     query,
     where,
-    orderBy,
     onSnapshot,
     doc,
     updateDoc,
@@ -26,19 +25,26 @@ export default function Notifications() {
     // Real-time notifications listener
     useEffect(() => {
         if (!currentUser) return;
+        console.log('Setting up notification listener for:', currentUser.uid);
 
         const q = query(
             collection(db, 'notifications'),
-            where('userId', '==', currentUser.uid),
-            orderBy('createdAt', 'desc')
+            where('userId', '==', currentUser.uid)
         );
 
         const unsubscribe = onSnapshot(q, (snapshot) => {
-            setNotifications(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
+            console.log('Notifications received:', snapshot.size);
+            // Sort client-side to avoid index requirement
+            const data = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+            data.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+            setNotifications(data);
             setLoading(false);
         }, (err) => {
             console.error('Notifications listener error:', err);
             setLoading(false);
+            if (err.code === 'failed-precondition') {
+                console.warn('Firestore Notifications Index Error: Query requires an index.');
+            }
         });
 
         return () => unsubscribe();
@@ -50,12 +56,14 @@ export default function Notifications() {
 
         const q = query(
             collection(db, 'memorials'),
-            where('postedBy', '==', currentUser.uid),
-            orderBy('createdAt', 'desc')
+            where('postedBy', '==', currentUser.uid)
         );
 
         const unsubscribe = onSnapshot(q, (snapshot) => {
-            setMyPosts(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
+            // Sort client-side to avoid index requirement
+            const data = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+            data.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+            setMyPosts(data);
             setPostsLoading(false);
         }, (err) => {
             console.error('My posts listener error:', err);
@@ -275,15 +283,29 @@ export default function Notifications() {
                                 : '...'}
                         </p>
                     </div>
-                    <button
-                        onClick={(e) => deleteMyPost(e, post.id)}
-                        className="self-start p-1.5 rounded-lg text-forest-400 hover:text-red-500 hover:bg-red-50 transition-colors flex-shrink-0"
-                        title="Delete this memorial"
-                    >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                    </button>
+                    <div className="flex flex-col gap-2">
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                navigate('/edit/' + post.id);
+                            }}
+                            className="p-1.5 rounded-lg text-forest-400 hover:text-blue-500 hover:bg-blue-50 transition-colors flex-shrink-0"
+                            title="Edit this memorial"
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                            </svg>
+                        </button>
+                        <button
+                            onClick={(e) => deleteMyPost(e, post.id)}
+                            className="p-1.5 rounded-lg text-forest-400 hover:text-red-500 hover:bg-red-50 transition-colors flex-shrink-0"
+                            title="Delete this memorial"
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
         );
@@ -362,7 +384,7 @@ export default function Notifications() {
                                     </svg>
                                 </div>
                                 <p className="text-forest-700/70 text-sm">No notifications yet</p>
-                                <p className="text-forest-600/40 text-xs mt-1">You'll be notified about messages and tribute reviews</p>
+                                <p className="text-forest-600/40 text-xs mt-1">You&apos;ll be notified about messages and tribute reviews</p>
                             </div>
                         ) : (
                             <div className="space-y-3">

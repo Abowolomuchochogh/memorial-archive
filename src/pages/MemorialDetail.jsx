@@ -3,7 +3,6 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
     doc,
     getDoc,
-    updateDoc,
     collection,
     query,
     where,
@@ -168,12 +167,12 @@ export default function MemorialDetail() {
         <div className="min-h-screen bg-cream-100">
             {/* Hero image section with gallery */}
             <div
-                className="relative h-64 sm:h-80 lg:h-96 bg-forest-900 overflow-hidden group"
+                className="relative h-72 sm:h-80 lg:h-[28rem] bg-[#0a0f0d] overflow-hidden group"
                 onTouchStart={hasMultipleImages ? handleTouchStart : undefined}
                 onTouchEnd={hasMultipleImages ? handleTouchEnd : undefined}
             >
                 {currentImage ? (
-                    <img src={currentImage} alt={fullName} className="w-full h-full object-cover opacity-60 transition-opacity duration-300" />
+                    <img src={currentImage} alt={fullName} className="w-full h-full object-cover transition-opacity duration-300 relative z-10" />
                 ) : (
                     <div className="w-full h-full bg-gradient-to-br from-forest-800 to-forest-900 flex items-center justify-center">
                         <span className="text-[120px] font-heading font-bold text-white/10">
@@ -181,14 +180,18 @@ export default function MemorialDetail() {
                         </span>
                     </div>
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-forest-900 via-forest-900/50 to-transparent"></div>
+                {/* Background blur effect for containment (fallback/aesthetic) */}
+                {currentImage && (
+                    <img src={currentImage} alt="" className="absolute inset-0 w-full h-full object-cover opacity-20 blur-md scale-110" aria-hidden="true" />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent z-20"></div>
 
                 {/* Gallery arrows */}
                 {hasMultipleImages && (
                     <>
                         <button
                             onClick={handleGalleryPrev}
-                            className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 backdrop-blur-sm text-white flex items-center justify-center hover:bg-black/60 transition-all opacity-0 group-hover:opacity-100"
+                            className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 backdrop-blur-sm text-white flex items-center justify-center hover:bg-black/60 transition-all opacity-0 group-hover:opacity-100 z-30"
                             aria-label="Previous image"
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -197,7 +200,7 @@ export default function MemorialDetail() {
                         </button>
                         <button
                             onClick={handleGalleryNext}
-                            className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 backdrop-blur-sm text-white flex items-center justify-center hover:bg-black/60 transition-all opacity-0 group-hover:opacity-100"
+                            className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 backdrop-blur-sm text-white flex items-center justify-center hover:bg-black/60 transition-all opacity-0 group-hover:opacity-100 z-30"
                             aria-label="Next image"
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -209,7 +212,7 @@ export default function MemorialDetail() {
 
                 {/* Gallery dot indicators */}
                 {hasMultipleImages && (
-                    <div className="absolute bottom-20 sm:bottom-24 left-1/2 -translate-x-1/2 flex gap-2">
+                    <div className="absolute bottom-20 sm:bottom-24 left-1/2 -translate-x-1/2 flex gap-2 z-30">
                         {images.map((_, idx) => (
                             <button
                                 key={idx}
@@ -226,33 +229,33 @@ export default function MemorialDetail() {
 
                 {/* Image counter badge */}
                 {hasMultipleImages && (
-                    <div className="absolute top-6 right-6 px-3 py-1 rounded-full bg-black/30 backdrop-blur-sm text-cream-200 text-xs font-medium">
+                    <div className="absolute top-6 right-6 px-3 py-1 rounded-full bg-black/40 backdrop-blur-md text-cream-200 text-xs font-semibold z-30 border border-white/10">
                         {activeImageIndex + 1} / {images.length}
                     </div>
                 )}
 
-                {/* Back button */}
+                {/* Back button - CRITICAL: High z-index and clear contrast */}
                 <Link
                     to="/archive"
-                    className="absolute top-6 left-6 flex items-center gap-2 text-cream-200 hover:text-cream-100 transition-colors bg-black/20 backdrop-blur-sm rounded-xl px-4 py-2"
+                    className="absolute top-6 left-6 flex items-center gap-2 text-white hover:text-cream-400 transition-all bg-black/40 backdrop-blur-md rounded-xl px-4 py-2 z-40 border border-white/10 hover:shadow-lg active:scale-95"
                 >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
                     </svg>
-                    <span className="text-sm font-medium">Tribute Wall</span>
+                    <span className="text-sm font-semibold">Tribute Wall</span>
                 </Link>
 
                 {/* Name overlay */}
-                <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8">
+                <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8 z-30">
                     <div className="max-w-4xl mx-auto">
-                        <p className="font-arabic text-cream-400/70 text-sm mb-2">
+                        <p className="font-arabic text-cream-400/80 text-sm mb-1.5 drop-shadow-md">
                             إِنَّا لِلَّهِ وَإِنَّا إِلَيْهِ رَاجِعُونَ
                         </p>
-                        <h1 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-cream-100 mb-2">
+                        <h1 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-2 drop-shadow-lg">
                             {fullName}
                         </h1>
                         {dateOfPassing && (
-                            <p className="text-cream-200/80 text-lg">
+                            <p className="text-cream-100/90 text-lg font-medium drop-shadow-md">
                                 Passed: {dateOfPassing}
                             </p>
                         )}
@@ -361,7 +364,7 @@ export default function MemorialDetail() {
                                 اللَّهُمَّ اغْفِرْ لَهُ وَارْحَمْهُ
                             </p>
                             <p className="text-cream-200/70 text-sm italic">
-                                "O Allah, forgive them and have mercy on them."
+                                &quot;O Allah, forgive them and have mercy on them.&quot;
                             </p>
                         </div>
                     </div>

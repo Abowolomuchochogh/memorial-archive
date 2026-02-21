@@ -139,13 +139,22 @@ export default function Chat() {
 
     // Real-time messages listener
     useEffect(() => {
+        if (!chatId) return;
+        console.log('Setting up message listener for chat:', chatId);
+
         const messagesRef = collection(db, 'chats', chatId, 'messages');
         const q = query(messagesRef, orderBy('createdAt', 'asc'));
 
         const unsubscribe = onSnapshot(q, (snapshot) => {
+            console.log('Messages received for chat:', snapshot.size);
             const msgs = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
             setMessages(msgs);
             setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+        }, (err) => {
+            console.error('Chat message listener error:', err);
+            if (err.code === 'permission-denied') {
+                console.warn('Access denied to chat messages. Checking participation...');
+            }
         });
 
         return () => unsubscribe();
@@ -351,19 +360,30 @@ export default function Chat() {
                 lastMessageAt: serverTimestamp(),
             });
 
-            // Notify the other participant
-            const senderLabel = currentUser.displayName || currentUser.email || 'Someone';
-            const recipientUid = chat?.participants?.find((p) => p !== currentUser.uid);
-            if (recipientUid) {
-                await addDoc(collection(db, 'notifications'), {
-                    userId: recipientUid,
-                    type: 'message',
-                    memorialName: chat.memorialName || 'Chat',
-                    message: `${senderLabel} has sent you a message — click to view`,
-                    chatId: chatId,
-                    isRead: false,
-                    createdAt: serverTimestamp(),
-                });
+            // Notify the other participant - wrapped in try/catch to not block message sending
+            try {
+                if (!chat || !chat.participants) {
+                    console.warn('Cannot send notification: chat metadata not loaded yet.');
+                } else {
+                    const senderLabel = currentUser.displayName || currentUser.email || 'Someone';
+                    const recipientUid = chat.participants.find((p) => p !== currentUser.uid);
+
+                    if (recipientUid) {
+                        await addDoc(collection(db, 'notifications'), {
+                            userId: recipientUid,
+                            type: 'message',
+                            memorialName: chat.memorialName || 'Chat',
+                            message: `${senderLabel} has sent you a message — click to view`,
+                            chatId: chatId,
+                            isRead: false,
+                            createdAt: serverTimestamp(),
+                        });
+                    } else {
+                        console.warn('Cannot send notification: recipientUid not found in participants:', chat.participants);
+                    }
+                }
+            } catch (notifErr) {
+                console.error('Error sending notification (non-fatal):', notifErr);
             }
 
             setNewMessage('');
@@ -537,7 +557,7 @@ export default function Chat() {
     const isBusy = sending || uploadingAudio || uploadingImage;
 
     return (
-        <div className="min-h-screen bg-cream-100 flex flex-col">
+        <div className="flex-1 flex flex-col min-h-0">
             {/* Chat header */}
             <div className="bg-forest-900 shadow-lg sticky top-16 z-40">
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-4">

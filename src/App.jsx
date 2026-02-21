@@ -16,6 +16,7 @@ const Login = lazy(() => import('./pages/Login'));
 const Signup = lazy(() => import('./pages/Signup'));
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
 const Notifications = lazy(() => import('./pages/Notifications'));
+const EditMemorial = lazy(() => import('./pages/EditMemorial'));
 
 // Global loading fallback
 function PageLoader() {
@@ -40,6 +41,7 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/archive" element={<Archive />} />
               <Route path="/memorial/:id" element={<MemorialDetail />} />
+              <Route path="/edit/:id" element={<EditMemorial />} />
               <Route path="/upload" element={<Upload />} />
               <Route path="/chat/:chatId" element={<Chat />} />
               <Route path="/admin-dashboard" element={<AdminDashboard />} />

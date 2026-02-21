@@ -3,11 +3,10 @@ service cloud.firestore {
   match /databases/{database}/documents {
     
     // Helper function to check if user is admin
-    // Checks BOTH 'role' field AND 'isAdmin' boolean to handle data inconsistencies
     function isAdmin() {
-      let userData = get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
       return request.auth != null && (
-        userData.role == 'admin' || userData.isAdmin == true
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' || 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true
       );
     }
 
@@ -29,18 +28,19 @@ service cloud.firestore {
       
       // UPDATE:
       // 1. Admins: Can update any field (including status).
-      // 2. Creators: Can update content, but STRICTLY FORBIDDEN from changing 'status'.
+      // 2. Creators: Can update content, but STRICTLY FORBIDDEN from changing 'status' and 'isApproved'.
       // 3. Public/Auth: Can strictly ONLY update 'candlesLit' (increment).
       allow update: if isAdmin() 
                     || (
                       request.auth != null 
                       && resource.data.postedBy == request.auth.uid 
-                      && request.resource.data.status == resource.data.status // Status CANNOT change
+                      && request.resource.data.status == resource.data.status 
+                      && request.resource.data.isApproved == resource.data.isApproved 
                     )
                     || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['candlesLit']);
 
-      // DELETE: Admin only.
-      allow delete: if isAdmin();
+      // DELETE: Admin or Creator
+      allow delete: if isAdmin() || (request.auth != null && resource.data.postedBy == request.auth.uid);
     }
     
     // CHATS
@@ -64,6 +64,16 @@ service cloud.firestore {
     match /users/{userId} {
       allow read: if request.auth != null;
       allow write: if isAdmin() || (request.auth != null && request.auth.uid == userId);
+    }
+    
+    // NOTIFICATIONS
+    // Users can read/delete their own notifications.
+    // Authenticated users can create notifications (e.g. when sending a message).
+    match /notifications/{notificationId} {
+      allow read, delete: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null && request.auth.uid == resource.data.userId 
+                      && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isRead']);
     }
   }
 }
