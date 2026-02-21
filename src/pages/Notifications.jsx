@@ -137,6 +137,12 @@ export default function Notifications() {
             return;
         }
 
+        // Navigate to the dashboard if it's an admin alert
+        if (notif.type === 'admin_alert') {
+            navigate('/dashboard');
+            return;
+        }
+
         // Navigate to the memorial if it's an approval/denial and has memorialId
         if ((notif.type === 'approved' || notif.type === 'denied') && notif.memorialId) {
             navigate('/memorial/' + notif.memorialId);
@@ -149,22 +155,26 @@ export default function Notifications() {
     function renderNotification(notif) {
         const isMessage = notif.type === 'message';
         const isApproved = notif.type === 'approved';
+        const isAdminAlert = notif.type === 'admin_alert';
 
         let bgClass = 'bg-white border-cream-200';
         if (!notif.isRead) {
             if (isMessage) bgClass = 'bg-blue-50 border-blue-200 shadow-sm';
             else if (isApproved) bgClass = 'bg-green-50 border-green-200 shadow-sm';
+            else if (isAdminAlert) bgClass = 'bg-yellow-50 border-yellow-200 shadow-sm';
             else bgClass = 'bg-red-50 border-red-200 shadow-sm';
         }
 
         let icon, iconBg;
         if (isMessage) { icon = '💬'; iconBg = 'bg-blue-100 text-blue-600'; }
         else if (isApproved) { icon = '✅'; iconBg = 'bg-green-100 text-green-600'; }
+        else if (isAdminAlert) { icon = '🛡️'; iconBg = 'bg-yellow-100 text-yellow-600'; }
         else { icon = '❌'; iconBg = 'bg-red-100 text-red-600'; }
 
         let badgeLabel, badgeBg;
         if (isMessage) { badgeLabel = 'New Message'; badgeBg = 'bg-blue-100 text-blue-700'; }
         else if (isApproved) { badgeLabel = 'Approved'; badgeBg = 'bg-green-100 text-green-700'; }
+        else if (isAdminAlert) { badgeLabel = 'Action Required'; badgeBg = 'bg-yellow-100 text-yellow-700'; }
         else { badgeLabel = 'Denied'; badgeBg = 'bg-red-100 text-red-700'; }
 
         return (
@@ -199,7 +209,12 @@ export default function Notifications() {
                                 Tap to open chat →
                             </p>
                         )}
-                        {!isMessage && notif.memorialId && (
+                        {isAdminAlert && (
+                            <p className="text-xs font-semibold text-yellow-600 mt-1">
+                                Tap to review in Dashboard →
+                            </p>
+                        )}
+                        {!isMessage && !isAdminAlert && notif.memorialId && (
                             <p className="text-xs font-semibold text-forest-600 mt-1">
                                 Tap to view memorial →
                             </p>

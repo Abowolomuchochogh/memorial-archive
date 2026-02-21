@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
-import { collection, doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, doc, setDoc, serverTimestamp, getDocs, query, where, writeBatch } from 'firebase/firestore';
 import { db } from '../firebase/firebaseConfig';
 import { useAuth } from '../context/AuthContext';
 
@@ -195,6 +195,29 @@ export default function Upload() {
             try {
                 await setDoc(newMemorialRef, memorialData);
 
+                // Notify all admins if a non-admin user submitted this
+                if (!isAdmin) {
+                    const adminsQuery = query(collection(db, 'users'), where('role', '==', 'admin'));
+                    const adminDocs = await getDocs(adminsQuery);
+
+                    if (!adminDocs.empty) {
+                        const batch = writeBatch(db);
+                        adminDocs.forEach(adminDoc => {
+                            const adminId = adminDoc.id;
+                            const notifRef = doc(collection(db, 'notifications'));
+                            batch.set(notifRef, {
+                                userId: adminId,
+                                type: 'admin_alert',
+                                message: `${currentUser.displayName || currentUser.email} has submitted a new memorial for ${form.fullName.trim()} that requires your review.`,
+                                memorialId: newMemorialRef.id,
+                                memorialName: form.fullName.trim(),
+                                isRead: false,
+                                createdAt: serverTimestamp(),
+                            });
+                        });
+                        await batch.commit();
+                    }
+                }
             } catch (firestoreErr) {
                 console.error('❌ Firestore save failed:', firestoreErr);
                 alert('Firestore error: ' + firestoreErr.message);
