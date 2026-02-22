@@ -20,7 +20,13 @@ export default function AdminDashboard() {
 
         // Real-time listener for users
         const unsubUsers = onSnapshot(collection(db, 'users'), (snap) => {
-            setUsers(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+            const usersData = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+                .sort((a, b) => {
+                    const dateA = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : new Date(a.createdAt || 0).getTime();
+                    const dateB = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : new Date(b.createdAt || 0).getTime();
+                    return dateB - dateA;
+                });
+            setUsers(usersData);
         }, (err) => console.error('Users listener error:', err));
 
         // Real-time listener for ALL memorials (admin sees everything)
