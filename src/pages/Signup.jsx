@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -20,6 +20,14 @@ export default function Signup() {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false); // Track successful signup to show pending message
+
+    useEffect(() => {
+        if (success) {
+            const timer = setTimeout(() => navigate('/archive'), 2000);
+            return () => clearTimeout(timer);
+        }
+    }, [success, navigate]);
+
 
     function handleChange(e) {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -56,8 +64,6 @@ export default function Signup() {
     }
 
     if (success) {
-        // Auto-redirect to Tribute Wall after 2 seconds
-        setTimeout(() => navigate('/archive'), 2000);
 
         return (
             <div className="min-h-screen bg-forest-50 flex items-center justify-center p-4">
