@@ -31,7 +31,7 @@ export default function Login() {
                     break;
                 case 'auth/wrong-password':
                 case 'auth/invalid-credential':
-                    setError('Invalid email or password. If you don\'t have an account, please sign up.');
+                    setError('Invalid email or password. If you signed up with Google, please use the "Sign in with Google" button below, or use "Forgot Password" to set a password.');
                     break;
                 case 'auth/too-many-requests':
                     setError('Too many attempts. Please try again later.');

@@ -16,13 +16,7 @@ export default function ForgotPassword() {
         setLoading(true);
 
         try {
-            // ActionCodeSettings: redirect back to login after password reset
-            const actionCodeSettings = {
-                url: 'https://wolo-5fbcd.web.app/login',
-                handleCodeInApp: false,
-            };
-
-            await sendPasswordResetEmail(auth, email.trim(), actionCodeSettings);
+            await sendPasswordResetEmail(auth, email.trim());
             setSuccess(true);
         } catch (err) {
             console.log('🔑 Password reset error code:', err.code);
