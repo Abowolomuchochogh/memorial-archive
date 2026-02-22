@@ -318,3 +318,75 @@ exports.onMemorialUpdated = functions.firestore
             }
         }
     });
+
+/**
+ * Trigger: When a new notification is created.
+ * Action: Send an FCM Push Notification to the recipient's devices.
+ */
+exports.onNotificationCreated = functions.firestore
+    .document("notifications/{notificationId}")
+    .onCreate(async (snap, context) => {
+        const notificationData = snap.data();
+        const userId = notificationData.userId;
+
+        if (!userId) {
+            console.log("No userId in notification, skipping push.");
+            return;
+        }
+
+        try {
+            // Get User's FCM tokens
+            const userSnap = await db.collection("users").doc(userId).get();
+            if (!userSnap.exists) {
+                console.log(`User ${userId} not found for push notification.`);
+                return;
+            }
+            const userData = userSnap.data();
+            const fcmTokens = userData.fcmTokens || [];
+
+            if (fcmTokens.length === 0) {
+                console.log(`User ${userId} has no FCM tokens.`);
+                return;
+            }
+
+            // Construct Push Notification payload
+            const payload = {
+                notification: {
+                    title: "Kamgbunli Legacy",
+                    body: notificationData.message || "You have a new notification",
+                },
+                data: {
+                    url: notificationData.chatId ? `/chat/${notificationData.chatId}` : '/',
+                }
+            };
+
+            // Send to all devices
+            const multicastMessage = {
+                ...payload,
+                tokens: fcmTokens,
+            };
+
+            const response = await admin.messaging().sendEachForMulticast(multicastMessage);
+            
+            console.log(`FCM Notifications sent. Success: ${response.successCount}, Failure: ${response.failureCount}`);
+
+            // Optionally clean up invalid tokens
+            if (response.failureCount > 0) {
+                const failedTokens = [];
+                response.responses.forEach((resp, idx) => {
+                    if (!resp.success) {
+                        failedTokens.push(fcmTokens[idx]);
+                    }
+                });
+                if (failedTokens.length > 0) {
+                    await db.collection("users").doc(userId).update({
+                        fcmTokens: admin.firestore.FieldValue.arrayRemove(...failedTokens)
+                    });
+                    console.log(`Removed ${failedTokens.length} invalid tokens for user ${userId}`);
+                }
+            }
+
+        } catch (error) {
+            console.error("Error sending FCM notification:", error);
+        }
+    });

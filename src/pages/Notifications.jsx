@@ -221,7 +221,7 @@ export default function Notifications() {
                         )}
                         <p className="text-[10px] text-forest-500/50 mt-1">
                             {notif.createdAt?.toDate?.()
-                                ? notif.createdAt.toDate().toLocaleString()
+                                ? notif.createdAt.toDate().toLocaleDateString('en-GB') + ' ' + notif.createdAt.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                                 : '...'}
                         </p>
                     </div>
@@ -294,7 +294,7 @@ export default function Notifications() {
                         )}
                         <p className="text-[10px] text-forest-500/50 mt-1">
                             Submitted: {post.createdAt?.toDate?.()
-                                ? post.createdAt.toDate().toLocaleString()
+                                ? post.createdAt.toDate().toLocaleDateString('en-GB') + ' ' + post.createdAt.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                                 : '...'}
                         </p>
                     </div>

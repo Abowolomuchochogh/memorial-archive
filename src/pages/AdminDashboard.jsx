@@ -252,7 +252,7 @@ export default function AdminDashboard() {
                                                     <p className="text-xs text-forest-500">
                                                         Submitted by: {m.postedByName || m.postedBy}
                                                         {m.postedByEmail && <span className="text-forest-400"> ({m.postedByEmail})</span>}
-                                                        {' '}on {new Date(m.createdAt?.seconds * 1000).toLocaleDateString()}
+                                                        {' '}on {new Date(m.createdAt?.seconds * 1000).toLocaleDateString('en-GB')}
                                                     </p>
                                                 </div>
 
@@ -318,6 +318,9 @@ export default function AdminDashboard() {
                                                     <td className="px-6 py-4">
                                                         <div className="font-medium text-forest-900">{user.displayName || 'No Name'}</div>
                                                         <div className="text-xs text-forest-500">{user.location || 'No Location'}</div>
+                                                        <div className="text-[10px] text-forest-400 mt-1">
+                                                            Joined: {user.createdAt?.toDate?.() ? user.createdAt.toDate().toLocaleDateString('en-GB') : 'Unknown'}
+                                                        </div>
                                                     </td>
                                                     <td className="px-6 py-4 text-sm text-forest-700">{user.email}</td>
                                                     <td className="px-6 py-4 text-sm">
@@ -366,6 +369,9 @@ export default function AdminDashboard() {
                                                 <div>
                                                     <div className="font-medium text-forest-900">{user.displayName || 'No Name'}</div>
                                                     <div className="text-xs text-forest-500">{user.email}</div>
+                                                    <div className="text-[10px] text-forest-400 mt-0.5">
+                                                        Joined: {user.createdAt?.toDate?.() ? user.createdAt.toDate().toLocaleDateString('en-GB') : 'Unknown'}
+                                                    </div>
                                                 </div>
                                                 <span className={`px-2 py-1 rounded text-xs font-semibold ${user.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-700'}`}>
                                                     {user.role || 'Member'}

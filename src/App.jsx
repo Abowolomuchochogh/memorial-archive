@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { usePushNotifications } from './hooks/usePushNotifications';
 import Layout from './components/Layout';
 
 // Lazy-loaded pages for code splitting
@@ -31,10 +32,16 @@ function PageLoader() {
   );
 }
 
+function PushNotificationManager() {
+  usePushNotifications();
+  return null;
+}
+
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+        <PushNotificationManager />
         <Suspense fallback={<PageLoader />}>
           <Routes>
             <Route element={<Layout />}>

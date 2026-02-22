@@ -373,7 +373,7 @@ export default function Chat() {
                             userId: recipientUid,
                             type: 'message',
                             memorialName: chat.memorialName || 'Chat',
-                            message: `${senderLabel} has sent you a message — click to view`,
+                            message: `${senderLabel}: ${lastMsg}`,
                             chatId: chatId,
                             isRead: false,
                             createdAt: serverTimestamp(),
@@ -473,6 +473,33 @@ export default function Chat() {
             alert('Failed to delete message.');
         }
         setContextMenu(null);
+    }
+
+    async function handleClearChat() {
+        if (!window.confirm("Are you sure you want to clear this entire chat? This will remove all messages for you, but the other person will still see them.")) return;
+
+        try {
+            const batch = writeBatch(db);
+            const messagesRef = collection(db, 'chats', chatId, 'messages');
+            const q = query(messagesRef);
+            const snapshot = await getDocs(q);
+
+            snapshot.docs.forEach((docSnap) => {
+                const data = docSnap.data();
+                const deletedFor = data.deletedFor || [];
+                // Only update if current user hasn't already deleted it
+                if (!deletedFor.includes(currentUser.uid)) {
+                    batch.update(docSnap.ref, {
+                        deletedFor: arrayUnion(currentUser.uid)
+                    });
+                }
+            });
+
+            await batch.commit();
+        } catch (err) {
+            console.error('Error clearing chat:', err);
+            alert('Failed to clear chat.');
+        }
     }
 
     // Long-press / right-click to open context menu
@@ -577,8 +604,19 @@ export default function Chat() {
                             </p>
                         )}
                     </div>
-                    <div className="w-9 h-9 rounded-full bg-forest-700 flex items-center justify-center text-cream-200 font-heading font-bold text-sm">
-                        {otherName.charAt(0).toUpperCase()}
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={handleClearChat}
+                            title="Clear Chat"
+                            className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-forest-800 text-cream-200 hover:text-red-400 transition-colors"
+                        >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </button>
+                        <div className="w-9 h-9 rounded-full bg-forest-700 flex items-center justify-center text-cream-200 font-heading font-bold text-sm">
+                            {otherName.charAt(0).toUpperCase()}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -657,7 +695,7 @@ export default function Chat() {
                                     <div className={`flex items-center justify-end gap-0.5 mt-1.5 ${isOwn ? 'text-cream-300/50' : 'text-forest-600/40'}`}>
                                         <span className="text-[10px]">
                                             {msg.createdAt?.toDate?.()
-                                                ? msg.createdAt.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                                                ? msg.createdAt.toDate().toLocaleDateString('en-GB') + ' ' + msg.createdAt.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                                                 : '...'}
                                         </span>
                                         {!isDeletedForEveryone && <MessageTicks msg={msg} />}

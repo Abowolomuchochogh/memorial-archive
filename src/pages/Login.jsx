@@ -27,9 +27,11 @@ export default function Login() {
             console.error('Login error:', err);
             switch (err.code) {
                 case 'auth/user-not-found':
+                    setError('No account found with this email. Please sign up first.');
+                    break;
                 case 'auth/wrong-password':
                 case 'auth/invalid-credential':
-                    setError('Invalid email or password.');
+                    setError('Invalid email or password. If you don\'t have an account, please sign up.');
                     break;
                 case 'auth/too-many-requests':
                     setError('Too many attempts. Please try again later.');
