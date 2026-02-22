@@ -319,7 +319,9 @@ export default function AdminDashboard() {
                                                         <div className="font-medium text-forest-900">{user.displayName || 'No Name'}</div>
                                                         <div className="text-xs text-forest-500">{user.location || 'No Location'}</div>
                                                         <div className="text-[10px] text-forest-400 mt-1">
-                                                            Joined: {user.createdAt?.toDate?.() ? user.createdAt.toDate().toLocaleDateString('en-GB') : 'Unknown'}
+                                                            Joined: {user.createdAt
+                                                                ? (user.createdAt.toDate ? user.createdAt.toDate() : new Date(user.createdAt)).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+                                                                : 'Unknown'}
                                                         </div>
                                                     </td>
                                                     <td className="px-6 py-4 text-sm text-forest-700">{user.email}</td>
@@ -370,7 +372,9 @@ export default function AdminDashboard() {
                                                     <div className="font-medium text-forest-900">{user.displayName || 'No Name'}</div>
                                                     <div className="text-xs text-forest-500">{user.email}</div>
                                                     <div className="text-[10px] text-forest-400 mt-0.5">
-                                                        Joined: {user.createdAt?.toDate?.() ? user.createdAt.toDate().toLocaleDateString('en-GB') : 'Unknown'}
+                                                        Joined: {user.createdAt
+                                                            ? (user.createdAt.toDate ? user.createdAt.toDate() : new Date(user.createdAt)).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+                                                            : 'Unknown'}
                                                     </div>
                                                 </div>
                                                 <span className={`px-2 py-1 rounded text-xs font-semibold ${user.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-700'}`}>
