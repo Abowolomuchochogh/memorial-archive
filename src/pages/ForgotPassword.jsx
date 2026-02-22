@@ -82,8 +82,11 @@ export default function ForgotPassword() {
                             <p className="text-forest-700/70 text-sm mb-4">
                                 The <strong className="text-forest-900">Kamgbunli Digital Sanctuary</strong> has sent a password reset link to <strong className="text-forest-900">{email}</strong>.
                             </p>
-                            <p className="text-forest-700/70 text-xs mb-6 bg-cream-200/60 rounded-lg px-3 py-2">
+                            <p className="text-forest-700/70 text-xs mb-2 bg-cream-200/60 rounded-lg px-3 py-2">
                                 ⚠️ Can't find it? Check your <strong>Spam</strong> or <strong>Junk</strong> folder and look for an email from <strong>noreply@wolo-5fbcd.firebaseapp.com</strong>.
+                            </p>
+                            <p className="text-forest-700/70 text-xs mb-6 bg-red-50 text-red-800 rounded-lg px-3 py-2 border border-red-200">
+                                🔒 <strong>If the Reset Link is unclickable</strong> (common in Spam folders), try moving the email to your Inbox, or <strong>highlight the entire link, copy it, and paste it directly into your browser's address bar</strong>.
                             </p>
                             <Link
                                 to="/login"
